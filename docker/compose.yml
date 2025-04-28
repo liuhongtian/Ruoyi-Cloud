@@ -76,7 +76,7 @@ services:
     container_name: ruoyi-modules-lht
     image: hwjdk:21-zh
     ports:
-      - "9999:9999"
+      - "9999"
     depends_on:
       - ruoyi-redis
       - ruoyi-mysql
@@ -88,7 +88,7 @@ services:
     container_name: ruoyi-modules-system
     image: hwjdk:21-zh
     ports:
-      - "9201:9201"
+      - "9201"
     depends_on:
       - ruoyi-redis
       - ruoyi-mysql
