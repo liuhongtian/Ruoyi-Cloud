@@ -44,3 +44,12 @@ nbdist/
 !*/build/*.java
 !*/build/*.html
 !*/build/*.xml
+
+.DS_Store
+docker/**/*.jar
+dump.rdb
+docker/nacos/logs/*.*
+docker/mysql/conf/
+docker/mysql/data/
+docker/mysql/logs/
+docker/mysql/db/*.sql

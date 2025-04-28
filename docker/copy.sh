@@ -9,11 +9,13 @@ usage() {
 
 # copy sql
 echo "begin copy sql "
-cp ../sql/ry_20240629.sql ./mysql/db
+cp ../sql/ry_20250425.sql ./mysql/db
 cp ../sql/ry_config_20250224.sql ./mysql/db
 
 # copy html
 echo "begin copy html "
+
+mkdir -p ./nginx/html/dist
 cp -r ../ruoyi-ui/dist/** ./nginx/html/dist
 
 
@@ -26,6 +28,9 @@ cp ../ruoyi-auth/target/ruoyi-auth.jar ./ruoyi/auth/jar
 
 echo "begin copy ruoyi-visual "
 cp ../ruoyi-visual/ruoyi-monitor/target/ruoyi-visual-monitor.jar  ./ruoyi/visual/monitor/jar
+
+echo "begin copy ruoyi-modules-lht "
+cp ../ruoyi-modules/ruoyi-lht/target/ruoyi-modules-lht.jar ./ruoyi/modules/lht/jar
 
 echo "begin copy ruoyi-modules-system "
 cp ../ruoyi-modules/ruoyi-system/target/ruoyi-modules-system.jar ./ruoyi/modules/system/jar

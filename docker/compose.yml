@@ -1,0 +1,160 @@
+services:
+  ruoyi-mysql:
+    container_name: ruoyi-mysql
+    image: mysql:5.7
+    build:
+      context: ./mysql
+    ports:
+      - "24306:3306"
+    volumes:
+      - ./mysql/conf:/etc/mysql/conf.d
+      - ./mysql/logs:/logs
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/db:/docker-entrypoint-initdb.d
+    command: [
+          'mysqld',
+          '--innodb-buffer-pool-size=80M',
+          '--character-set-server=utf8mb4',
+          '--collation-server=utf8mb4_unicode_ci',
+          '--default-time-zone=+8:00',
+          '--lower-case-table-names=1'
+        ]
+    environment:
+      MYSQL_DATABASE: 'ry-cloud'
+      MYSQL_ROOT_PASSWORD: password
+  ruoyi-redis:
+    container_name: ruoyi-redis
+    image: redis
+    ports:
+      - "6379"
+    volumes:
+      - ./redis/conf/redis.conf:/home/ruoyi/redis/redis.conf
+      - ./redis/data:/data
+    command: redis-server /home/ruoyi/redis/redis.conf
+  ruoyi-nacos:
+    container_name: ruoyi-nacos
+    image: nacos/nacos-server
+    build:
+      context: ./nacos
+    environment:
+      - MODE=standalone
+    volumes:
+      - ./nacos/logs/:/home/nacos/logs
+      - ./nacos/conf/application.properties:/home/nacos/conf/application.properties
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+      - "9849:9849"
+    depends_on:
+      - ruoyi-mysql
+
+  ruoyi-gateway:
+    container_name: ruoyi-gateway
+    image: hwjdk:21-zh
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ruoyi-redis
+      - ruoyi-mysql
+      - ruoyi-nacos
+    volumes:
+      - ./ruoyi/gateway/jar:/jars
+    command: ["-jar", "/jars/ruoyi-gateway.jar"]
+  ruoyi-auth:
+    container_name: ruoyi-auth
+    image: hwjdk:21-zh
+    ports:
+      - "9200"
+    depends_on:
+      - ruoyi-redis
+      - ruoyi-mysql
+      - ruoyi-nacos
+    volumes:
+      - ./ruoyi/auth/jar:/jars
+    command: ["-jar", "/jars/ruoyi-auth.jar"]
+  ruoyi-modules-lht:
+    container_name: ruoyi-modules-lht
+    image: hwjdk:21-zh
+    ports:
+      - "9999:9999"
+    depends_on:
+      - ruoyi-redis
+      - ruoyi-mysql
+      - ruoyi-nacos
+    volumes:
+      - ./ruoyi/modules/lht/jar:/jars
+    command: ["-jar", "/jars/ruoyi-modules-lht.jar"]
+  ruoyi-modules-system:
+    container_name: ruoyi-modules-system
+    image: hwjdk:21-zh
+    ports:
+      - "9201:9201"
+    depends_on:
+      - ruoyi-redis
+      - ruoyi-mysql
+      - ruoyi-nacos
+    volumes:
+      - ./ruoyi/modules/system/jar:/jars
+    command: ["-jar", "/jars/ruoyi-modules-system.jar"]
+  ruoyi-modules-gen:
+    container_name: ruoyi-modules-gen
+    image: hwjdk:21-zh
+    ports:
+      - "9202"
+    depends_on:
+      - ruoyi-redis
+      - ruoyi-mysql
+      - ruoyi-nacos
+    volumes:
+      - ./ruoyi/modules/gen/jar:/jars
+    command: ["-jar", "/jars/ruoyi-modules-gen.jar"]
+  ruoyi-modules-job:
+    container_name: ruoyi-modules-job
+    image: hwjdk:21-zh
+    ports:
+      - "9203"
+    depends_on:
+      - ruoyi-redis
+      - ruoyi-mysql
+      - ruoyi-nacos
+    volumes:
+      - ./ruoyi/modules/job/jar:/jars
+    command: ["-jar", "/jars/ruoyi-modules-job.jar"]
+  ruoyi-modules-file:
+    container_name: ruoyi-modules-file
+    image: hwjdk:21-zh
+    ports:
+      - "9300"
+    depends_on:
+      - ruoyi-redis
+      - ruoyi-mysql
+      - ruoyi-nacos
+    volumes:
+      - ./ruoyi/modules/file/jar:/jars
+      - ./ruoyi/files:/home/ruoyi/uploadPath
+    command: ["-jar", "/jars/ruoyi-modules-file.jar"]
+  ruoyi-visual-monitor:
+    container_name: ruoyi-visual-monitor
+    image: hwjdk:21-zh
+    ports:
+      - "9100:9100"
+    depends_on:
+      - ruoyi-redis
+      - ruoyi-mysql
+      - ruoyi-nacos
+    volumes:
+      - ./ruoyi/visual/monitor/jar:/jars
+    command: ["-jar", "/jars/ruoyi-visual-monitor.jar"]
+
+  ruoyi-nginx:
+    container_name: ruoyi-nginx
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/html/dist:/home/ruoyi/projects/ruoyi-ui
+      - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/logs:/var/log/nginx
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - ruoyi-gateway

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.lht.mapper.MydemoMapper">
+
+    <resultMap type="com.ruoyi.lht.domain.Mydemo" id="MydemoResult">
+        <result property="id" column="id" />
+        <result property="name" column="name" />
+        <result property="age" column="age" />
+    </resultMap>
+
+    <sql id="selectMydemoVo">
+        select id, name, age from mydemo
+    </sql>
+
+    <select id="selectMydemoList" parameterType="com.ruoyi.lht.domain.Mydemo" resultMap="MydemoResult">
+        <include refid="selectMydemoVo"/>
+        <where>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="age != null "> and age = #{age}</if>
+        </where>
+    </select>
+
+    <select id="selectMydemoById" parameterType="Long" resultMap="MydemoResult">
+        <include refid="selectMydemoVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertMydemo" parameterType="com.ruoyi.lht.domain.Mydemo" useGeneratedKeys="true" keyProperty="id">
+        insert into mydemo
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">name,</if>
+            <if test="age != null">age,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">#{name},</if>
+            <if test="age != null">#{age},</if>
+        </trim>
+    </insert>
+
+    <update id="updateMydemo" parameterType="com.ruoyi.lht.domain.Mydemo">
+        update mydemo
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="age != null">age = #{age},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteMydemoById" parameterType="Long">
+        delete from mydemo where id = #{id}
+    </delete>
+
+    <delete id="deleteMydemoByIds" parameterType="String">
+        delete from mydemo where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
